@@ -1,40 +1,93 @@
-# Welcome to Remix!
+# Auth Boilerplate for Remix Apps
 
-- 📖 [Remix docs](https://remix.run/docs)
+This project provides a reusable authentication boilerplate for Remix applications, including user login, registration, password reset, and session management.
 
-## Development
+## Features
+- User registration with email and password
+- Secure login with bcrypt password hashing
+- Password reset functionality
+- Session management
+- Prisma ORM integration with PostgreSQL
 
-Run the dev server:
+## Getting Started
 
-```shellscript
-npm run dev
-```
+### Prerequisites
+- Node.js >= 20.0.0
+- PostgreSQL database (or adjust the Prisma schema for another provider)
+- npm or yarn for package management
 
-## Deployment
+### Installation
 
-First, build your app for production:
+1. **Clone or Copy Files**:
+   If you're integrating this into an existing Remix project, copy the following directories and files into your project root:
+   - `app/routes/` (contains auth-related route files like login, register, etc.)
+   - `app/auth/` (session management utilities)
+   - `app/components/` (UI components for auth forms)
+   - `app/utils/` (database and other utilities)
+   If you're starting fresh, clone this repository.
 
-```sh
-npm run build
-```
+2. **Install Dependencies**:
+   ```bash
+   npm install prisma @prisma/client --save-dev
+   npm install bcryptjs @prisma/client
+   ```
 
-Then run the app in production mode:
+3. **Initialize Prisma** (if not already done):
+   ```bash
+   npx prisma init
+   ```
 
-```sh
-npm start
-```
+4. **Update Prisma Schema**:
+   Add the following `User` model to `prisma/schema.prisma`:
+   ```prisma
+   model User {
+     id                  Int       @id @default(autoincrement())
+     email               String    @unique
+     passwordHash        String
+     resetToken          String?   // For password reset functionality
+     resetTokenExpiresAt DateTime? // For password reset token expiration
+     createdAt           DateTime  @default(now())
+     updatedAt           DateTime  @updatedAt
+   }
+   ```
 
-Now you'll need to pick a host to deploy it to.
+5. **Configure Database Connection**:
+   Update the `DATABASE_URL` in your `.env` file with your PostgreSQL connection string. Example:
+   ```bash
+   DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+   ```
+   Ensure your PostgreSQL database is running and accessible.
 
-### DIY
+6. **Generate Prisma Client and Apply Migrations**:
+   ```bash
+   npm install @prisma/client@latest
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+7. **Run the Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open your browser to `http://localhost:5173` (or the port specified by Remix/Vite) to see the app running.
 
-Make sure to deploy the output of `npm run build`
+### Troubleshooting
+- **Prisma Client Initialization Error**: If you encounter an error like "@prisma/client did not initialize yet", ensure `@prisma/client` is installed (`npm install @prisma/client`), then rerun `npx prisma generate`.
+- **Database Connection Issues**: Verify your `DATABASE_URL` is correct and your database server is running.
+- **Dependency Conflicts**: If you face version mismatches, clear `node_modules` (`rm -rf node_modules`), then reinstall (`npm install`).
 
-- `build/server`
-- `build/client`
+### Usage
+- Access the landing page at `/` for sign-in and registration links.
+- Login at `/auth-flow/login`, register at `/auth-flow/register`, and reset password at `/auth-flow/forgot-password`.
+- After login, users are redirected to `/dashboard/home`.
 
-## Styling
+## Customization
+- Modify the UI components in `app/components/` to match your project's design.
+- Extend the `User` model in `prisma/schema.prisma` for additional fields like user roles or profile data.
+- Update route paths in route files if your app uses a different structure.
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+## Contributing
+Feel free to submit issues or pull requests to improve this boilerplate.
+
+## License
+[Add your license information here]
